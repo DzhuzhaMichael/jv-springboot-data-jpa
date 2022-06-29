@@ -14,12 +14,12 @@ public class CategoryServiceImpl implements CategoryService {
 
     @Override
     public Category save(Category category) {
-        return null;
+        return categoryRepository.save(category);
     }
 
     @Override
     public Category get(Long id) {
-        return null;
+        return categoryRepository.getById(id);
     }
 
     @Override
