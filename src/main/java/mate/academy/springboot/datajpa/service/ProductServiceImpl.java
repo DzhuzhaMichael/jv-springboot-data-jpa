@@ -2,7 +2,6 @@ package mate.academy.springboot.datajpa.service;
 
 import java.math.BigDecimal;
 import java.util.List;
-import mate.academy.springboot.datajpa.model.Category;
 import mate.academy.springboot.datajpa.model.Product;
 import mate.academy.springboot.datajpa.repository.ProductRepository;
 import org.springframework.stereotype.Service;
@@ -10,9 +9,12 @@ import org.springframework.stereotype.Service;
 @Service
 public class ProductServiceImpl implements ProductService {
     private final ProductRepository productRepository;
+    private final CategoryService categoryService;
 
-    public ProductServiceImpl(ProductRepository productRepository) {
+    public ProductServiceImpl(ProductRepository productRepository,
+                              CategoryService categoryService) {
         this.productRepository = productRepository;
+        this.categoryService = categoryService;
     }
 
     @Override
@@ -23,6 +25,11 @@ public class ProductServiceImpl implements ProductService {
     @Override
     public Product get(Long id) {
         return productRepository.getById(id);
+    }
+
+    @Override
+    public List<Product> getAll() {
+        return productRepository.findAll();
     }
 
     @Override
@@ -45,7 +52,7 @@ public class ProductServiceImpl implements ProductService {
     }
 
     @Override
-    public List<Product> getAllInCategory(Category category) {
-        return null;
+    public List<Product> findAllInCategoryIsIn(List<Long> ids) {
+        return productRepository.getAllByCategoryIdIsIn(ids);
     }
 }

@@ -23,12 +23,7 @@ public class CategoryServiceImpl implements CategoryService {
     }
 
     @Override
-    public Category delete(Long id) {
-        return null;
-    }
-
-    @Override
-    public Category update(Long id) {
-        return null;
+    public void delete(Long id) {
+        categoryRepository.deleteById(id);
     }
 }

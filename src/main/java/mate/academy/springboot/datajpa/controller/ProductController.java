@@ -3,7 +3,7 @@ package mate.academy.springboot.datajpa.controller;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
-
+import java.util.stream.Collectors;
 import mate.academy.springboot.datajpa.dto.request.ProductRequestDto;
 import mate.academy.springboot.datajpa.dto.response.ProductResponseDto;
 import mate.academy.springboot.datajpa.model.Category;
@@ -45,27 +45,39 @@ public class ProductController {
         Category categoryPhone = new Category();
         categoryPhone.setName("phone");
         categoryService.save(categoryPhone);
+        Category categoryLaptop = new Category();
+        categoryLaptop.setName("laptop");
+        categoryService.save(categoryLaptop);
 
         Product productOne = new Product();
         productOne.setTitle("iPhone 13");
         productOne.setPrice(BigDecimal.valueOf(1500));
         productOne.setCategory(categoryPhone);
+        productService.save(productOne);
 
         Product productTwo = new Product();
         productTwo.setTitle("Samsung S21");
         productTwo.setPrice(BigDecimal.valueOf(1400));
         productTwo.setCategory(categoryPhone);
+        productService.save(productTwo);
 
         Product productThree = new Product();
         productThree.setTitle("Nokia 3310");
         productThree.setPrice(BigDecimal.valueOf(400));
         productThree.setCategory(categoryPhone);
-
-        productService.save(productOne);
-        productService.save(productTwo);
         productService.save(productThree);
-//        System.out.println(productService.getAllByPriceBetween(BigDecimal.valueOf(399),
-//                BigDecimal.valueOf(1400)));
+
+        Product productFour = new Product();
+        productFour.setTitle("Apple Macbook Pro");
+        productFour.setPrice(BigDecimal.valueOf(2000));
+        productFour.setCategory(categoryLaptop);
+        productService.save(productFour);
+
+        Product productFive = new Product();
+        productFive.setTitle("Razer Blade Stealth");
+        productFive.setPrice(BigDecimal.valueOf(1500));
+        productFive.setCategory(categoryLaptop);
+        productService.save(productFive);
 
         return "Done";
     }
@@ -76,22 +88,31 @@ public class ProductController {
         return productMapper.mapToDto(product);
     }
 
+    @GetMapping("/all")
+    public List<ProductResponseDto> getAll() {
+        List<Product> products = productService.getAll();
+        return products
+                .stream()
+                .map(product -> productMapper.mapToDto(product))
+                .collect(Collectors.toList());
+    }
+
     @GetMapping("/{id}")
-    public ProductResponseDto getById(@PathVariable Long productId) {
-        Product product = productService.get(productId);
+    public ProductResponseDto getById(@PathVariable Long id) {
+        Product product = productService.get(id);
         return productMapper.mapToDto(product);
     }
 
     @DeleteMapping("/{id}")
     @ResponseStatus(HttpStatus.OK)
-    public void deleteById(@PathVariable Long productId) {
-        productService.delete(productId);
+    public void deleteById(@PathVariable Long id) {
+        productService.delete(id);
     }
 
     @PutMapping("/{id}")
-    public ProductResponseDto update(@PathVariable Long productId,
+    public ProductResponseDto update(@PathVariable Long id,
                                      @RequestBody ProductRequestDto requestDto) {
-        Product product = productService.get(productId);
+        Product product = productService.get(id);
         product.setTitle(requestDto.getTitle());
         product.setPrice(requestDto.getPrice());
         product.setCategory(categoryService.get(requestDto.getCategoryId()));
@@ -103,7 +124,8 @@ public class ProductController {
     public List<ProductResponseDto> getAllByPriceInBetween(@RequestParam BigDecimal priceFrom,
                                                            @RequestParam BigDecimal priceTo) {
         List<ProductResponseDto> responseDtoList = new ArrayList<>();
-        List<Product> allProductsByPrice = productService.getAllByPriceBetween(priceFrom, priceTo);
+        List<Product> allProductsByPrice
+                = productService.getAllByPriceBetween(priceFrom, priceTo);
         for (Product product : allProductsByPrice) {
             responseDtoList.add(productMapper.mapToDto(product));
         }
@@ -111,8 +133,12 @@ public class ProductController {
     }
 
     @GetMapping("/all/by-category")
-    public List<ProductResponseDto> getAllByCategory(@RequestParam List<Long> productIds) {
-
-        return null;
+    public List<ProductResponseDto> getAllByCategory(@RequestParam("ids") List<Long> ids) {
+        List<Product> products
+                = productService.findAllInCategoryIsIn(ids);
+        return products
+                .stream()
+                .map(product -> productMapper.mapToDto(product))
+                .collect(Collectors.toList());
     }
 }
